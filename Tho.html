@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Music Player</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      background-color: #f4f7fa;
+    }
+
+    /* Container for playlist */
+    .container {
+      padding: 20px;
+      text-align: center;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 80px; /* Space for player */
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    /* Style for individual song items */
+    li {
+      margin: 10px 0;
+      padding: 15px;
+      background-color: #e9f0fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      display: flex;
+      align-items: center;
+    }
+
+    li:hover {
+      background-color: #d0e1f9;
+      transform: translateY(-2px);
+    }
+
+    li:active {
+      background-color: #c6daf4;
+      transform: translateY(0);
+    }
+
+    /* Icon for play/pause next to song name */
+    .song-icon {
+      font-size: 18px;
+      margin-right: 15px;
+      color: #333;
+    }
+
+    /* Player container fixed at the bottom */
+    #player-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #0073e6;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    #player-container audio {
+      width: 60%;
+    }
+
+    .song-title {
+      margin-left: 10px;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    /* Styling audio control bar */
+    audio::-webkit-media-controls-panel {
+      background-color: #0073e6;
+    }
+
+    audio::-webkit-media-controls-play-button {
+      color: white;
+    }
+
+    audio::-webkit-media-controls-current-time-display,
+    audio::-webkit-media-controls-time-remaining-display {
+      color: white;
+    }
+
+    /* Skip button style */
+    .skip-btn {
+      background-color: #fff;
+      color: #0073e6;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .skip-btn:hover {
+      background-color: #e9f0fa;
+    }
+    
+    /* Mobile optimization */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 24px;
+      }
+      
+      li {
+        font-size: 14px;
+      }
+      
+      .song-title {
+        font-size: 12px;
+      }
+      
+      #player-container audio {
+        width: 50%;
+      }
+
+      .skip-btn {
+        padding: 8px 10px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Theophilus Sunday</h1>
+    <ul id="song-list">
+      <li data-src="https://elohimtunes.com/wp-content/uploads/2021/05/Min-Theophilus-Sunday-__-Restore-my-LOVE-for-You-Again-Lord-__-Msconnect-Worship.mp3"><span class="song-icon">🎵</span> Song 1</li>
+      <li data-src="https://elohimtunes.com/wp-content/uploads/2021/05/Theophilus-Sunday-_-1st-Ministration-_-WOFBEC-2024-_-Faith-That-Moves-Mountain.mp3"><span class="song-icon">🎵</span> Song 2</li>
+      <li data-src="https://elohimtunes.com/wp-content/uploads/2021/05/ILL-FOREVER-BE-CHASING-AFTER-YOU-__-MIN.-THEOPHILUS-SUNDAY.mp3"><span class="song-icon">🎵</span> Song 3</li>
+      <li data-src="https://elohimtunes.com/wp-content/uploads/2021/05/Min-Theophilus-Sunday-__-SOW-My-Life-Spend-My-Life-Lord-__-Msconnect-Worship.mp3"><span class="song-icon">🎵</span> Song 4</li>
+      <li data-src="https://elohimtunes.com/wp-content/uploads/2021/05/TILL-I-LOOK-LIKE-YOU-__-MIN.-THEOPHILUS-SUNDAY.mp3"><span class="song-icon">🎵</span> Song 5</li>
+       <li data-src="song5.mp3"><span class="song-icon">🎵</span> Song 6</li>
+    </ul>
+  </div>
+
+  <div id="player-container">
+    <audio id="audio-player" controls>
+      <source src="" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+    <div class="song-title" id="current-song">Select a song to play</div>
+    <button class="skip-btn" id="skip-button">Skip</button>
+  </div>
+
+  <script>
+    const songs = document.querySelectorAll('#song-list li');
+    const audioPlayer = document.getElementById('audio-player');
+    const currentSong = document.getElementById('current-song');
+    const skipButton = document.getElementById('skip-button');
+    
+    let currentSongIndex = 0;
+
+    // Play selected song
+    songs.forEach((song, index) => {
+      song.addEventListener('click', function () {
+        playSong(index);
+      });
+    });
+
+    // Skip to next song
+    skipButton.addEventListener('click', function () {
+      currentSongIndex = (currentSongIndex + 1) % songs.length;
+      playSong(currentSongIndex);
+    });
+
+    // Auto-play next song when current one ends
+    audioPlayer.addEventListener('ended', function () {
+      currentSongIndex = (currentSongIndex + 1) % songs.length; // Loop to the first song when reaching the last one
+      playSong(currentSongIndex);
+    });
+
+    function playSong(index) {
+      const song = songs[index];
+      const songSrc = song.getAttribute('data-src');
+      audioPlayer.src = songSrc;
+      currentSong.textContent = song.textContent;
+      currentSongIndex = index;
+      audioPlayer.play();
+    }
+  </script>
+
+</body>
+</html>
